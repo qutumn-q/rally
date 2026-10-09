@@ -43,7 +43,6 @@ function update() {
 }
 
 function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawCar(car);
     drawCheckpoints();
     drawWalls();
@@ -57,7 +56,12 @@ function loop() {
     requestAnimationFrame(loop);
 };
 
-loop();
+loadMapFromImage('track.png', (data, width, height) =>  {
+    walls = buildWalls(data, width, height);
+    checkpoints = buildCheckpoints(data, width, height);
+    loop();
+    console.log('стін:', walls.length, 'чекпоінтів:', checkpoints.length);
+});
 //draw functions----------------------------------------------------------------
 function drawTime() {
     ctx.fillStyle = 'white';
