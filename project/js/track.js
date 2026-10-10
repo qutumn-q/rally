@@ -1,6 +1,11 @@
 //consts----------------------------------------------------------------------
-let walls = [];
-let checkpoints = [];
+const walls = [];
+
+const checkpoints = [
+    { x: 600, y: 100, width: 100, height: 100, checked: false },
+    { x: 600, y: 400, width: 100, height: 100, checked: false },
+    { x: 100, y: 400, width: 100, height: 100, checked: false },
+];
 let nextCheckpoint = 0;
 //draw functions-----------------------------------------------------------------
 function drawCheckpoints() {

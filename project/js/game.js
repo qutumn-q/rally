@@ -19,34 +19,31 @@ function update() {
     if (checkCollision(car, walls)) { car.x -= dx; }
     car.y += dy;
     if (checkCollision(car, walls)) { car.y -= dy; }
-
-    if (car.x < 0) car.x = canvas.width;
-    if (car.x > canvas.width) car.x = 0;
-    if (car.y < 0) car.y = canvas.height;
-    if (car.y > canvas.height) car.y = 0;
-
     // Чекпоінти: тільки один блок, і тільки поки коло не завершене
     if (!lapFinished && checkCheckpoint(car, [checkpoints[nextCheckpoint]])) {
         checkpoints[nextCheckpoint].checked = true;
-
         if (nextCheckpoint === 0) {
             startTime = performance.now();
         }
-
         nextCheckpoint++;
-
         if (nextCheckpoint === checkpoints.length) {
             lapTime = (performance.now() - startTime) / 1000;
             lapFinished = true;
         }
     }
+    camera.x = car.x - canvas.width / 2;
+    camera.y = car.y - canvas.height / 2;
 }
 
 function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.translate(-camera.x, -camera.y)
     drawCar(car);
     drawCheckpoints();
     drawWalls();
     drawCarLights();
+    ctx.restore();
     drawTime();
 };
 
@@ -55,13 +52,8 @@ function loop() {
     draw();
     requestAnimationFrame(loop);
 };
-
-loadMapFromImage('track.png', (data, width, height) =>  {
-    walls = buildWalls(data, width, height);
-    checkpoints = buildCheckpoints(data, width, height);
-    loop();
-    console.log('стін:', walls.length, 'чекпоінтів:', checkpoints.length);
-});
+ 
+loop();
 //draw functions----------------------------------------------------------------
 function drawTime() {
     ctx.fillStyle = 'white';
