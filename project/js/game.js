@@ -40,9 +40,10 @@ function draw() {
     ctx.save();
     ctx.translate(-camera.x, -camera.y)
     drawCar(car);
-    drawCheckpoints();
-    drawWalls();
     drawCarLights();
+    drawWalls();
+    drawline();
+    drawCheckpoints();
     ctx.restore();
     drawTime();
 };
