@@ -5,9 +5,11 @@ let lapFinished = false;
 //main functions----------------------------------------------------------------
 function update() {
     const prevAngle = car.angle;
-    if (keys['ArrowLeft']) { car.angle -= 0.05; }
-    if (keys['ArrowRight']) { car.angle += 0.05; }
-    if (checkCollision(car, walls)) { car.angle = prevAngle; }
+    if (car.speed != 0) {
+        if (keys['ArrowLeft']) { car.angle -= 0.05*(car.speed/5); }
+        if (keys['ArrowRight']) { car.angle += 0.05*(car.speed/5); }
+        if (checkCollision(car, walls)) { car.angle = prevAngle; }
+    }
 
     if (keys['ArrowUp']) { car.speed += 0.15; }
     if (keys['ArrowDown']) { car.speed -= 0.15; }
@@ -53,7 +55,9 @@ function loop() {
     draw();
     requestAnimationFrame(loop);
 };
- 
+startup();
+car.x = trackLine[0].x;
+car.y = trackLine[0].y;
 loop();
 //draw functions----------------------------------------------------------------
 function drawTime() {
