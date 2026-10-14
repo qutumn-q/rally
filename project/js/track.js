@@ -1,7 +1,7 @@
 const edgeMargin = 200;
 const startMaxMargin = 400;
 const skeletonMinSegments = 6;
-const stepLength = 100;
+const stepLength = 150;
 const maxOffsetRatio = 0.4;
 const edgeSafe = 150;
 const checkpointSize = 50;
@@ -14,6 +14,7 @@ let walls = [
     { x: 0, y: 0, width: 10, height: WORLD_H },
     { x: WORLD_W - 10, y: 0, width: 10, height: WORLD_H },
 ];
+let wallSegments = [];
 
 //add functions---------------------------------------------------------------
 function randomBetween(min, max) {
@@ -53,15 +54,18 @@ function makeSkeleton() {
     console.log('start', start, 'finish', finish, 'totalLen', totalLen);
 
     for (let i = 0; i < skeletonMinSegments - 1; i++) {
-        const t = i/skeletonMinSegments;
+        const t = (i + 1) / skeletonMinSegments;
         let base = { x: start.x + d.x * t, y: start.y + d.y * t };
 
         const segLen = totalLen / skeletonMinSegments;
-        const offset = randomBetween(-maxOffsetRatio, maxOffsetRatio) * segLen;
 
-        let p = { x: base.x + normal.x * offset, y: base.y + normal.y * offset };
-        p.x = clamp(p.x, edgeSafe, WORLD_W - edgeSafe);
-        p.y = clamp(p.y, edgeSafe, WORLD_H - edgeSafe);
+        let p;
+        let tries = 0;
+        do {
+            const offset = randomBetween(-maxOffsetRatio, maxOffsetRatio) * segLen;
+            p = { x: base.x + normal.x * offset, y: base.y + normal.y * offset };
+            tries++;
+        } while ((p.x < edgeSafe || p.x > WORLD_W - edgeSafe || p.y < edgeSafe || p.y > WORLD_H - edgeSafe) && tries < 50);
 
         skeleton.push(p);
     }
@@ -86,6 +90,7 @@ function subdivideSegments(a, b) {
         const offset = amp * Math.sin(freq * t * 2 * Math.PI);
         points.push({ x: base.x + perp.x * offset, y: base.y + perp.y * offset });
     }
+    console.log('сегмент', 'довжина', L.toFixed(0), 'amp', amp.toFixed(0), 'freq', freq.toFixed(2));
     return points;
 }
 
@@ -123,13 +128,35 @@ function generateValidTrack() {
 
 function buildCheckpoints(trackLine) {
     const checkpoints = [];
-    for (let i = 0; i < trackLine.length - 1; i += Math.floor(trackLine.length / 4)) {
+    for (let i = 1; i < trackLine.length - 1; i += Math.floor(trackLine.length / 4)) {
         const p = trackLine[i];
         checkpoints.push({ x: p.x - checkpointSize / 2, y: p.y - checkpointSize / 2, width: checkpointSize, height: checkpointSize, checked: false });
     }
     const finish = trackLine[trackLine.length - 1];
     checkpoints.push({ x: finish.x - checkpointSize / 2, y: finish.y - checkpointSize / 2, width: checkpointSize, height: checkpointSize, checked: false });
     return checkpoints;
+}
+
+//colision functions---------------------------------------------------------------
+function distToSegment(p, s) {
+    const dx = s.bx - s.ax;
+    const dy = s.by - s.ay;
+    const len2 = dx * dx + dy * dy;
+    if (len2 === 0) return distance(p, { x: s.ax, y: s.ay });
+    let t = ((p.x - s.ax) * dx + (p.y - s.ay) * dy) / len2;
+    t = clamp(t, 0, 1);
+    const closest = { x: s.ax + dx * t, y: s.ay + dy * t };
+    return distance(p, closest);
+}
+
+function checkCollision(car, segments) {
+    const corners = getCarCorners(car);
+    for (const s of segments) {
+        for (const c of corners) {
+            if (distToSegment(c, s) < wallSize / 2) return true;
+        }
+    }
+    return false;
 }
 
 //draw functions---------------------------------------------------------------
@@ -159,9 +186,21 @@ function drawWalls() {
     }
 }
 
+function drawWallSegments() {
+    ctx.beginPath();
+    ctx.strokeStyle = 'grey';
+    ctx.lineWidth = wallSize;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    for (const s of wallSegments) {
+        ctx.moveTo(s.ax, s.ay);
+        ctx.lineTo(s.bx, s.by);
+    }
+    ctx.stroke();
+}
+
 //buid walls
 const halfWidth = 60;
-const wallStep = 10;
 const wallSize = 10;
 const miterLimit = 1.4;
 
@@ -181,6 +220,13 @@ function segmentsDirection(trackLine) {
         dirs.push(normalizeVec({ x: trackLine[i + 1].x - trackLine[i].x, y: trackLine[i + 1].y - trackLine[i].y }));
     }
     return dirs;
+}
+
+function turnSign(i, trackLine, normals) {
+    // знак повороту: >0 — поворот вліво, <0 — вправо
+    const a = normals[i - 1];
+    const b = normals[i];
+    return a.x * b.y - a.y * b.x;
 }
 
 function vertexNormals(trackLine) {
@@ -207,10 +253,15 @@ function buildEdges(trackLine, halfWidth) {
     for (let i = 0; i < trackLine.length; i++) {
         const P = trackLine[i];
         const N = normals[i];
-        let k = halfWidth * coefMiter(i, trackLine, normals);
-        k = Math.min(k, halfWidth * miterLimit);
-        left.push({ x: P.x + N.x * k, y: P.y + N.y * k });
-        right.push({ x: P.x - N.x * k, y: P.y - N.y * k });
+        let kLeft = halfWidth;
+        let kRight = halfWidth;
+        if (i > 0 && i < trackLine.length - 1) {
+            const coef = Math.min(coefMiter(i, trackLine, normals), miterLimit) * halfWidth;
+            if (turnSign(i, trackLine, normals) > 0) kLeft = coef;   // внутрішній — лівий
+            else kRight = coef;                                       // внутрішній — правий
+        }
+        left.push({ x: P.x + N.x * kLeft, y: P.y + N.y * kLeft });
+        right.push({ x: P.x - N.x * kRight, y: P.y - N.y * kRight });
     }
     return { left: left, right: right };
 }
@@ -222,25 +273,20 @@ function coefMiter(i, trackLine, normals) {
     return Math.min(1 / cosHalf, miterLimit);
 }
 
-function sampleAlongEdge(edge, step, size) {
-    let walls = [];
+// відрізки країв дороги: один елемент = один відрізок стіни
+function edgeToSegments(edge) {
+    let segs = [];
     for (let i = 0; i < edge.length - 1; i++) {
         const A = edge[i]; const B = edge[i + 1];
-        const L = distance(A, B);
-        if (L === 0) continue;
-        const number = Math.ceil(L / step);
-        for (let s = 0; s < number; s++) {
-            const t = s / number;
-            const x = A.x + (B.x - A.x) * t; const y = A.y + (B.y - A.y) * t;
-            walls.push({ x: x - size / 2, y: y - size / 2, width: size, height: size });
-        }
+        if (distance(A, B) === 0) continue;
+        segs.push({ ax: A.x, ay: A.y, bx: B.x, by: B.y });
     }
-    return walls;
+    return segs;
 }
 
 function buildTrackWalls(trackLine) {
     const edges = buildEdges(trackLine, halfWidth);
-    return sampleAlongEdge(edges.left, wallStep, wallSize).concat(sampleAlongEdge(edges.right, wallStep, wallSize));
+    return edgeToSegments(edges.left).concat(edgeToSegments(edges.right));
 }
 
 //startup function---------------------------------------------------------------
@@ -249,7 +295,7 @@ function startup() {
     skeleton = result.skeleton;
     trackLine = result.trackLine;
     checkpoints = buildCheckpoints(trackLine);
-    walls = walls.concat(buildTrackWalls(trackLine));
+    wallSegments = buildTrackWalls(trackLine);
     console.log('перша точка', trackLine[0], 'остання точка', trackLine[trackLine.length - 1]);
     console.log('точок:', trackLine.length, 'NaN:', trackLine.some(p => isNaN(p.x) || isNaN(p.y)));
 }

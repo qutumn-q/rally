@@ -6,8 +6,8 @@ let lapFinished = false;
 function update() {
     const prevAngle = car.angle;
     if (car.speed != 0) {
-        if (keys['ArrowLeft']) { car.angle -= 0.05*(car.speed/5); }
-        if (keys['ArrowRight']) { car.angle += 0.05*(car.speed/5); }
+        if (keys['ArrowLeft']) { car.angle -= 0.05 * (car.speed/5); }
+        if (keys['ArrowRight']) { car.angle += 0.05 * (car.speed/5); }
         if (checkCollision(car, walls)) { car.angle = prevAngle; }
     }
 
@@ -18,9 +18,9 @@ function update() {
     const dx = car.speed * Math.cos(car.angle);
     const dy = car.speed * Math.sin(car.angle);
     car.x += dx;
-    if (checkCollision(car, walls)) { car.x -= dx; }
+    if (checkCollision(car, wallSegments)) { car.x -= dx; }
     car.y += dy;
-    if (checkCollision(car, walls)) { car.y -= dy; }
+    if (checkCollision(car, wallSegments)) { car.y -= dy; }
     // Чекпоінти: тільки один блок, і тільки поки коло не завершене
     if (!lapFinished && checkCheckpoint(car, [checkpoints[nextCheckpoint]])) {
         checkpoints[nextCheckpoint].checked = true;
@@ -40,12 +40,14 @@ function update() {
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.save();
-    ctx.translate(-camera.x, -camera.y)
-    drawCar(car);
-    drawCarLights();
-    drawWalls();
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate(-car.angle - Math.PI / 2);
+    ctx.translate(-car.x, -car.y);
+    drawWallSegments();
     drawline();
     drawCheckpoints();
+    drawCar(car);
+    drawCarLights();
     ctx.restore();
     drawTime();
 };
