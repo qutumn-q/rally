@@ -35,10 +35,10 @@ window.addEventListener('keyup', (e) => {
 });
 
 const walls = [
-    { x: 0, y: 0, width: canvas.width, height: 10 }, // top wall
-    { x: 0, y: canvas.height - 10, width: canvas.width, height: 10 }, // bottom wall
-    { x: 0, y: 0, width: 10, height: canvas.height }, // left wall
-    { x: canvas.width - 10, y: 0, width: 10, height: canvas.height }, // right wall
+    { x: 0, y: 0, width: canvas.width, height: 10 }, 
+    { x: 0, y: canvas.height - 10, width: canvas.width, height: 10 }, 
+    { x: 0, y: 0, width: 10, height: canvas.height }, 
+    { x: canvas.width - 10, y: 0, width: 10, height: canvas.height }, 
 ];
 
 function drawCar(car) {
@@ -82,10 +82,10 @@ function getCarCorners(car) {
     const cosA = Math.cos(car.angle);
     const sinA = Math.sin(car.angle);
     return [
-        { x: car.x + (-20 * cosA - -10 * sinA), y: car.y + (-20 * sinA + -10 * cosA) }, // top-left
-        { x: car.x + (20 * cosA - -10 * sinA), y: car.y + (20 * sinA + -10 * cosA) }, // top-right
-        { x: car.x + (20 * cosA - 10 * sinA), y: car.y + (20 * sinA + 10 * cosA) }, // bottom-right
-        { x: car.x + (-20 * cosA - 10 * sinA), y: car.y + (-20 * sinA + 10 * cosA) }, // bottom-left
+        { x: car.x + (-20 * cosA - -10 * sinA), y: car.y + (-20 * sinA + -10 * cosA) }, 
+        { x: car.x + (20 * cosA - -10 * sinA), y: car.y + (20 * sinA + -10 * cosA) }, 
+        { x: car.x + (20 * cosA - 10 * sinA), y: car.y + (20 * sinA + 10 * cosA) }, 
+        { x: car.x + (-20 * cosA - 10 * sinA), y: car.y + (-20 * sinA + 10 * cosA) }, 
     ];
 }
 
@@ -123,7 +123,6 @@ function update() {
     if (keys['ArrowLeft']) car.angle -= 0.05;
     if (keys['ArrowRight']) car.angle += 0.05;
 
-    // якщо поворот призвів до зіткнення, скасувати його
     if (checkCollision(car, walls)) {
         car.angle = prevAngle;
     }

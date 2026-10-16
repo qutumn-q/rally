@@ -10,10 +10,10 @@ window.addEventListener('keydown', (e) => { keys[e.key] = true; });
 window.addEventListener('keyup', (e) => { keys[e.key] = false; });
 
 const walls = [
-    { x: 0, y: 0, width: canvas.width, height: 10 }, // top wall
-    { x: 0, y: canvas.height - 10, width: canvas.width, height: 10 }, // bottom wall
-    { x: 0, y: 0, width: 10, height: canvas.height }, // left wall
-    { x: canvas.width - 10, y: 0, width: 10, height: canvas.height }, // right wall
+    { x: 0, y: 0, width: canvas.width, height: 10 }, 
+    { x: 0, y: canvas.height - 10, width: canvas.width, height: 10 }, 
+    { x: 0, y: 0, width: 10, height: canvas.height }, 
+    { x: canvas.width - 10, y: 0, width: 10, height: canvas.height },
 ];
 
 const checkpoints = [
@@ -23,8 +23,8 @@ const checkpoints = [
 ];
 let nextCheckpoint = 0;
 //Lap times-----------------------------------------------------------------------
-let startTime = null;  // коло ще не почалося
-let lapTime = 0;       // фінальний час, секунди
+let startTime = null;  
+let lapTime = 0;      
 let lapFinished = false;
 
 //main functions----------------------------------------------------------------
@@ -50,7 +50,6 @@ function update() {
     if (car.y < 0) car.y = canvas.height;
     if (car.y > canvas.height) car.y = 0;
 
-    // Чекпоінти: тільки один блок, і тільки поки коло не завершене
     if (!lapFinished && checkCheckpoint(car, [checkpoints[nextCheckpoint]])) {
         checkpoints[nextCheckpoint].checked = true;
 

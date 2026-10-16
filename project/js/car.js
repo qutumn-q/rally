@@ -3,10 +3,10 @@ function getCarCorners(car) {
     const cosA = Math.cos(car.angle);
     const sinA = Math.sin(car.angle);
     return [
-        { x: car.x + (-20 * cosA - -10 * sinA), y: car.y + (-20 * sinA + -10 * cosA) }, // top-left
-        { x: car.x + (20 * cosA - -10 * sinA), y: car.y + (20 * sinA + -10 * cosA) }, // top-right
-        { x: car.x + (20 * cosA - 10 * sinA), y: car.y + (20 * sinA + 10 * cosA) }, // bottom-right
-        { x: car.x + (-20 * cosA - 10 * sinA), y: car.y + (-20 * sinA + 10 * cosA) }, // bottom-left
+        { x: car.x + (-20 * cosA - -10 * sinA), y: car.y + (-20 * sinA + -10 * cosA) }, 
+        { x: car.x + (20 * cosA - -10 * sinA), y: car.y + (20 * sinA + -10 * cosA) }, 
+        { x: car.x + (20 * cosA - 10 * sinA), y: car.y + (20 * sinA + 10 * cosA) }, 
+        { x: car.x + (-20 * cosA - 10 * sinA), y: car.y + (-20 * sinA + 10 * cosA) }, 
     ];
 };
 
