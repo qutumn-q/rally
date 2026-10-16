@@ -8,7 +8,7 @@ function update() {
     if (car.speed != 0) {
         if (keys['ArrowLeft']) { car.angle -= 0.05 * (car.speed/5); }
         if (keys['ArrowRight']) { car.angle += 0.05 * (car.speed/5); }
-        if (checkCollision(car, walls)) { car.angle = prevAngle; }
+        if (checkCollision(car, wallSegments)) { car.angle = prevAngle; }
     }
 
     if (keys['ArrowUp']) { car.speed += 0.15; }
