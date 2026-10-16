@@ -46,8 +46,10 @@ function draw() {
     drawWallSegments();
     drawline();
     drawCheckpoints();
-    drawCar(car);
+
     drawCarLights();
+    drawCar(car);
+
     ctx.restore();
     drawTime();
 };
