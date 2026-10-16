@@ -29,15 +29,15 @@ function distance(a, b) {
 
 // start function---------------------------------------------------------------
 function randomStartPoint() {
-    const side = Math.floor(Math.random() * 4); // 0 - ліво, 1 - право, 2 - верх, 3 - низ
-    const margin = randomBetween(edgeMargin, startMaxMargin); // позиція вздовж краю
-    const along = randomBetween(edgeMargin, WORLD_W - edgeMargin); // позиція вздовж краю
+    const side = Math.floor(Math.random() * 4); 
+    const margin = randomBetween(edgeMargin, startMaxMargin); 
+    const along = randomBetween(edgeMargin, WORLD_W - edgeMargin); 
 
     switch (side) {
-        case 0: return { x: margin, y: along };                     // ліва сторона
-        case 1: return { x: WORLD_W - margin, y: along };           // права сторона
-        case 2: return { x: along, y: margin };                     // верхня сторона
-        default: return { x: along, y: WORLD_H - margin };          // нижня сторона
+        case 0: return { x: margin, y: along };                  
+        case 1: return { x: WORLD_W - margin, y: along };        
+        case 2: return { x: along, y: margin };                    
+        default: return { x: along, y: WORLD_H - margin };          
     }
 }
 
@@ -223,7 +223,6 @@ function segmentsDirection(trackLine) {
 }
 
 function turnSign(i, trackLine, normals) {
-    // знак повороту: >0 — поворот вліво, <0 — вправо
     const a = normals[i - 1];
     const b = normals[i];
     return a.x * b.y - a.y * b.x;
@@ -257,8 +256,8 @@ function buildEdges(trackLine, halfWidth) {
         let kRight = halfWidth;
         if (i > 0 && i < trackLine.length - 1) {
             const coef = Math.min(coefMiter(i, trackLine, normals), miterLimit) * halfWidth;
-            if (turnSign(i, trackLine, normals) > 0) kLeft = coef;   // внутрішній — лівий
-            else kRight = coef;                                       // внутрішній — правий
+            if (turnSign(i, trackLine, normals) > 0) kLeft = coef; 
+            else kRight = coef;                                    
         }
         left.push({ x: P.x + N.x * kLeft, y: P.y + N.y * kLeft });
         right.push({ x: P.x - N.x * kRight, y: P.y - N.y * kRight });
@@ -273,7 +272,6 @@ function coefMiter(i, trackLine, normals) {
     return Math.min(1 / cosHalf, miterLimit);
 }
 
-// відрізки країв дороги: один елемент = один відрізок стіни
 function edgeToSegments(edge) {
     let segs = [];
     for (let i = 0; i < edge.length - 1; i++) {

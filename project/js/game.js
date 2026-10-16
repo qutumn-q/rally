@@ -1,6 +1,6 @@
 //Constants-----------------------------------------------------------------------
-let startTime = null;  // коло ще не почалося
-let lapTime = 0;       // фінальний час, секунди
+let startTime = null;  
+let lapTime = 0;      
 let lapFinished = false;
 //main functions----------------------------------------------------------------
 function update() {
@@ -21,7 +21,6 @@ function update() {
     if (checkCollision(car, wallSegments)) { car.x -= dx; }
     car.y += dy;
     if (checkCollision(car, wallSegments)) { car.y -= dy; }
-    // Чекпоінти: тільки один блок, і тільки поки коло не завершене
     if (!lapFinished && checkCheckpoint(car, [checkpoints[nextCheckpoint]])) {
         checkpoints[nextCheckpoint].checked = true;
         if (nextCheckpoint === 0) {
